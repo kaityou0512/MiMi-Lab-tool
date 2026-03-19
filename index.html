@@ -315,6 +315,21 @@ details[open] summary{border-bottom:1px solid var(--border);}
 
   /* Palette: 3 columns on mobile */
   #paletteCanvas{height:160px!important;}
+
+  /* Header: smaller */
+  header h1{font-size:12px;}
+  header .hbtn{font-size:10px;padding:5px 8px;}
+  .header-badge{display:none;}
+
+  /* Tabs: smaller text */
+  .tab{font-size:11px;padding:7px 4px;}
+
+  /* Chat page: full height */
+  #page-chat .sl-wrap, #page-chat>div{height:calc(100vh - 180px)!important;}
+
+  /* Promo: stack vertically */
+  #promoGrid{grid-template-columns:1fr!important;}
+  #promoGrid>div:first-child{border-right:none!important;border-bottom:1px solid var(--border);}
 }
 </style>
 </head>
@@ -352,9 +367,9 @@ details[open] summary{border-bottom:1px solid var(--border);}
   <img src="data:image/png;base64,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" alt="キャラクター" style="height:36px;width:auto;filter:invert(1) brightness(1.2);"/>
   <h1>セット図 / セットリスト生成 <span>Lab</span></h1>
   <span class="header-badge">BETA</span>
-  <div style="margin-left:auto;">
+  <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
     <button class="hbtn" onclick="openContact()" style="font-size:11px;">お問い合わせ</button>
-    <button class="hbtn" onclick="printPlot()">印刷 / PDF保存</button>
+    <button class="hbtn" onclick="printPlot()" style="font-size:11px;">印刷 / PDF保存</button>
   </div>
 </header>
 
@@ -749,20 +764,16 @@ details[open] summary{border-bottom:1px solid var(--border);}
 </div>
 
 <div class="page" id="page-chat">
-  <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--rad-lg);overflow:hidden;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;height:calc(100vh - 220px);min-height:500px;">
-    <div style="padding:14px 18px;border-bottom:1px solid var(--border);background:var(--card2);display:flex;align-items:center;gap:10px;">
-      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#b8933e,#e8c96a);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">✦</div>
-      <div>
-        <div style="font-size:13px;font-weight:700;color:var(--text);">AIアシスタント</div>
-        <div style="font-size:11px;color:var(--text2);">対話形式でセット図・セットリストを作成</div>
-      </div>
-      <button onclick="resetChat()" class="hbtn" style="margin-left:auto;font-size:11px;padding:5px 12px;">最初から</button>
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;text-align:center;gap:16px;padding:40px 20px;">
+    <div style="font-size:48px;opacity:.4;">🚧</div>
+    <div style="font-size:20px;font-weight:800;color:var(--text);">Coming Soon</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.8;max-width:320px;">
+      対話モードは現在準備中です。<br>
+      近日中のアップデートで追加予定です。<br>
+      <span style="color:var(--gold2);font-weight:600;">お楽しみに！</span>
     </div>
-    <div id="chatMessages" style="flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px;"></div>
-    <div style="padding:12px 16px;border-top:1px solid var(--border);background:var(--card2);display:flex;gap:8px;align-items:flex-end;">
-      <textarea id="chatInput" rows="1" placeholder="メッセージを入力... (Enterで送信)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';"
-        style="flex:1;border:1.5px solid var(--border2);border-radius:var(--rad);padding:9px 12px;font-size:13px;font-family:inherit;background:rgba(255,255,255,.07);color:var(--text);outline:none;resize:none;line-height:1.5;max-height:120px;"></textarea>
-      <button onclick="sendChat()" id="chatSendBtn" class="hbtn primary" style="padding:9px 18px;flex-shrink:0;">送信</button>
+    <div style="margin-top:8px;padding:10px 20px;border:1px solid var(--border2);border-radius:var(--rad);font-size:11px;color:var(--text3);">
+      AIとの対話でセット図・セットリストを自動作成できる機能を開発中
     </div>
   </div>
 </div>
@@ -1740,10 +1751,28 @@ async function runAiFromModal(){
 }
 
 // ── AI SUGGEST CORE ──
-async function callClaude(messages,useSearch){
-  const body={model:'claude-sonnet-4-20250514',max_tokens:1000,messages};
+// ★ Cloudflare WorkerのURLをここに設定してください
+const CF_WORKER_URL = 'https://YOUR_WORKER.workers.dev';
+
+async function callClaude(messages,useSearch,system){
+  const body={model:'claude-sonnet-4-20250514',max_tokens:2000,messages};
+  if(system)body.system=system;
   if(useSearch)body.tools=[{type:'web_search_20250305',name:'web_search'}];
-  const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+
+  const endpoint = CF_WORKER_URL && CF_WORKER_URL !== 'https://YOUR_WORKER.workers.dev'
+    ? CF_WORKER_URL
+    : null;
+
+  if(!endpoint){
+    throw new Error('Worker URLが設定されていません。CF_WORKER_URLを設定してください。');
+  }
+
+  const res=await fetch(endpoint,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(body)
+  });
+  if(!res.ok) throw new Error('APIエラー: '+res.status);
   return res.json();
 }
 function extractText(data){if(!data.content)return'';return data.content.filter(b=>b.type==='text').map(b=>b.text).join('');}
@@ -2141,11 +2170,11 @@ async function sendChat(){
 
   try{
     const data=await callClaude([
-      {role:'user',content:CHAT_SYSTEM+'\n\n---\n\nでは始めましょう。'},
+      {role:'user',content:'こんにちは！'},
       {role:'assistant',content:'こんにちは！ライブの準備をお手伝いします😊\nまずバンド名と編成を教えてください。（例：3ピース、4ピースなど）'},
       ...chatHistory.slice(0,-1),
       {role:'user',content:text}
-    ], false);
+    ], false, CHAT_SYSTEM);
 
     const typing=document.getElementById('chatTyping');
     if(typing)typing.parentElement.remove();
@@ -2371,7 +2400,7 @@ renderSetlist();
   </div>
 
   <!-- Side by side: YouTube (small) + Apple Music embed -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;" id="promoGrid">
 
     <!-- YouTube small player -->
     <div style="border-right:1px solid var(--border);">
