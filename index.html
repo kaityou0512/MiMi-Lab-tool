@@ -1638,7 +1638,7 @@ async function printPlot(){
       <img src="${stageUrl}" style="width:100%;height:100%;max-height:150mm;object-fit:contain;display:block;border:1px solid #eee;"/>
     </div>
   </div>
-  <div class="page" style="display:flex;flex-direction:column;">
+  <div class="page" style="display:flex;flex-direction:column;height:277mm;">
     ${header}
     ${liveInfoHTML}
     <div style="font-size:12px;font-weight:800;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #1a1a2e;color:#1a1a2e;">SET LIST</div>
@@ -2138,13 +2138,13 @@ async function exportImages(){
     // ── Image 2: Setlist as Canvas ──
     // Build text-based canvas (no html2canvas needed)
     const CWIDTH=900, PAD=36, ROW=32, HEAD=26;
-    const headerH=80, h2H=44;
-    const dataRows=rows.length;
-    const totalH=PAD+headerH+h2H+(dataRows+2)*ROW+200+PAD;
+    // A4 portrait ratio: 210:297 → height = CWIDTH * 297/210
+    const A4H=Math.round(CWIDTH*297/210);
     const c2=document.createElement('canvas');
-    c2.width=CWIDTH*2; c2.height=totalH*2;
+    c2.width=CWIDTH*2; c2.height=A4H*2;
     const ctx2=c2.getContext('2d');
     ctx2.scale(2,2);
+    const totalH=A4H;
 
     // White bg
     ctx2.fillStyle='#fff';
@@ -2232,14 +2232,23 @@ async function exportImages(){
     ctx2.fillText(`${tm}:${String(ts).padStart(2,'0')}`,PAD+40+220+6,y+ROW/2+4);
     y+=ROW+20;
 
-    // STAFF MEMO
+    // STAFF MEMO - fill remaining space to A4 bottom
     ctx2.fillStyle='#111';ctx2.font='bold 9px -apple-system,sans-serif';
     ctx2.fillText('STAFF MEMO',PAD,y+10);
     ctx2.beginPath();ctx2.moveTo(PAD,y+14);ctx2.lineTo(CWIDTH-PAD,y+14);
     ctx2.strokeStyle='#1a1a2e';ctx2.lineWidth=2;ctx2.stroke();
     y+=20;
+    // Powered by footer at bottom
+    const footerY=A4H-PAD+4;
+    ctx2.font='7px Helvetica Neue,sans-serif';
+    ctx2.fillStyle='#ccc';
+    ctx2.textAlign='right';
+    ctx2.fillText('Powered by MIMI-LAB',CWIDTH-PAD,footerY);
+    ctx2.textAlign='left';
+    // Memo box fills remaining space above footer
+    const memoH=footerY-20-y;
     ctx2.strokeStyle='#ccc';ctx2.lineWidth=1;
-    ctx2.strokeRect(PAD,y,CWIDTH-PAD*2,90);
+    ctx2.strokeRect(PAD,y,CWIDTH-PAD*2,Math.max(60,memoH));
 
     const img2=c2.toDataURL('image/jpeg',0.92);
     await animateBar(95,300);
