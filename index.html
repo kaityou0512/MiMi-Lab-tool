@@ -340,6 +340,7 @@ details[open] summary{border-bottom:1px solid var(--border);}
   #promoGrid>div:first-child{border-right:none!important;border-bottom:1px solid var(--border);}
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 <!-- AI詳細入力モーダル -->
@@ -378,6 +379,7 @@ details[open] summary{border-bottom:1px solid var(--border);}
   <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
     <button class="hbtn" onclick="openContact()" style="font-size:11px;">お問い合わせ</button>
     <button class="hbtn" onclick="printPlot()" style="font-size:11px;">印刷 / PDF保存</button>
+    <button class="hbtn" onclick="exportImages()" style="font-size:11px;" id="imgExportBtn">画像で保存</button>
   </div>
 </header>
 
@@ -1430,6 +1432,8 @@ async function animateBar(targetPct, durationMs){
 }
 
 async function printPlot(){
+  // Open window immediately on user gesture (before any await) for iOS compatibility
+  const printWin=window.open('','_blank') || window.open('','_self');
   showPdfLoader();
   try{
   await animateBar(15, 500);
@@ -1634,9 +1638,9 @@ async function printPlot(){
   </style>
   </head><body>
   <div class="print-bar">
-    <span style="font-size:12px;opacity:.8;">印刷ダイアログで「PDFとして保存」を選択してください</span>
-    <button class="btn-pdf" onclick="window.print()"> PDFとして保存</button>
-    <button class="btn-close" onclick="window.close()"> 閉じる</button>
+    <span style="font-size:12px;opacity:.8;">「PDFとして保存」を選択してください</span>
+    <button class="btn-pdf" onclick="window.print()">印刷 / PDF保存</button>
+    <button class="btn-close" onclick="window.close()">✕</button>
   </div>
 
   <div class="page landscape">
@@ -1668,16 +1672,14 @@ async function printPlot(){
   await animateBar(100, 400);
   await new Promise(r=>setTimeout(r,500));
 
-  const url=URL.createObjectURL(blob);
-  // Use download link for mobile compatibility
-  const a=document.createElement('a');
-  a.href=url;
-  a.download=(document.getElementById('bandName').value||'setlist')+'-livewsheet.html';
-  a.style.display='none';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(url),30000);
+  if(printWin){
+    printWin.document.write(html);
+    printWin.document.close();
+  } else {
+    const url=URL.createObjectURL(blob);
+    window.location.href=url;
+    setTimeout(()=>URL.revokeObjectURL(url),60000);
+  }
   // Show thank you modal after a short delay
   setTimeout(()=>showThankModal(), 800);
   }catch(e){console.error('PDF error:',e);alert('PDF生成に失敗しました: '+e.message);}
@@ -2121,6 +2123,58 @@ async function submitContact(){
       </div>
       <button onclick="closeContact()" class="hbtn primary" style="padding:10px 32px;">閉じる</button>
     </div>`;
+}
+
+// ── IMAGE EXPORT ──
+async function exportImages(){
+  const btn=document.getElementById('imgExportBtn');
+  btn.textContent='生成中...';btn.disabled=true;
+  showPdfLoader();
+  try{
+    const bn=document.getElementById('bandName').value||'band';
+
+    await animateBar(20,400);
+
+    // 1. Stage plot image from canvas
+    const stageCanvas=document.getElementById('stageCanvas');
+    const stageImg=stageCanvas.toDataURL('image/jpeg',0.92);
+    await animateBar(50,500);
+
+    // 2. Setlist image via html2canvas
+    const slWrap=document.querySelector('.sl-wrap');
+    await animateBar(70,300);
+    const slCanvas=await html2canvas(slWrap,{
+      backgroundColor:'#28283c',  // dark bg for JPEG
+      scale:2,
+      useCORS:true,
+      logging:false
+    });
+    const slImg=slCanvas.toDataURL('image/jpeg',0.92);
+    await animateBar(90,400);
+
+    // Download stage image
+    const a1=document.createElement('a');
+    a1.href=stageImg;
+    a1.download=bn+'-stage.jpg';
+    a1.click();
+
+    // Small delay then download setlist
+    await new Promise(r=>setTimeout(r,500));
+    const a2=document.createElement('a');
+    a2.href=slImg;
+    a2.download=bn+'-setlist.jpg';
+    a2.click();
+
+    await animateBar(100,200);
+    await new Promise(r=>setTimeout(r,300));
+    showThankModal();
+  }catch(e){
+    console.error(e);
+    alert('画像生成に失敗しました: '+e.message);
+  }finally{
+    hidePdfLoader();
+    btn.textContent='画像で保存';btn.disabled=false;
+  }
 }
 
 // ── SHARE ──
