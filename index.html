@@ -1669,7 +1669,14 @@ async function printPlot(){
   await new Promise(r=>setTimeout(r,500));
 
   const url=URL.createObjectURL(blob);
-  window.open(url,'_blank');
+  // Use download link for mobile compatibility
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=(document.getElementById('bandName').value||'setlist')+'-livewsheet.html';
+  a.style.display='none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(url),30000);
   // Show thank you modal after a short delay
   setTimeout(()=>showThankModal(), 800);
