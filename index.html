@@ -1444,7 +1444,7 @@ async function printPlot(){
 
   // Header HTML (A4 optimized)
   const header=`
-    <div style="margin-bottom:14px;border:1.5px solid #111;border-radius:4px;overflow:hidden;">
+    <div style="margin-bottom:12px;border:1.5px solid #111;border-radius:4px;overflow:hidden;width:100%;">
       <div style="background:#111;color:#fff;padding:5px 12px;font-size:13px;font-weight:700;letter-spacing:.05em;">${bn||'BAND NAME'}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;">
         <div style="padding:5px 10px;border-right:1px solid #ddd;">
@@ -1519,7 +1519,7 @@ async function printPlot(){
          STAFF MEMO
         <span style="font-size:9px;font-weight:400;color:#aaa;letter-spacing:.04em;text-transform:none;">（当日メモ欄）</span>
       </div>
-      <div style="border:1.5px solid #ccc;border-radius:6px;padding:14px 16px;background:#fafafa;min-height:100px;">
+      <div style="border:1.5px solid #ccc;border-radius:6px;padding:14px 16px;background:#fafafa;min-height:220px;flex:1;">
       </div>
     </div>`;
   slHTML+=memoSection;
@@ -1590,48 +1590,39 @@ async function printPlot(){
   <style>
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;background:#fff;color:#111;}
-    .page{
-      width:210mm;padding:10mm 12mm 8mm;
-      page-break-after:always;background:#fff;
-    }
-    .page.landscape{
-      width:297mm;padding:10mm 12mm 8mm;
-    }
-    .page:last-child{page-break-after:avoid;}
-    h2{font-size:12px;font-weight:800;margin-bottom:8px;padding-bottom:4px;
-       border-bottom:2px solid #1a1a2e;letter-spacing:.06em;color:#1a1a2e;}
-    @media print{
-      html,body{width:auto;}
-      .page{padding:10mm 12mm 8mm;margin:0;}
-      .page.landscape{
-        width:297mm;
-        padding:10mm 12mm 8mm;
-      }
-      @page landscape { size: A4 landscape; }
-      .landscape { page: landscape; }
-    }
+    h2{font-size:12px;font-weight:800;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #1a1a2e;letter-spacing:.06em;color:#1a1a2e;}
+
+    /* Screen preview */
     @media screen{
-      body{background:#e0e0e0;display:flex;flex-direction:column;align-items:center;gap:16px;padding:20px;}
-      .page{box-shadow:0 2px 16px rgba(0,0,0,.15);border-radius:2px;}
-      .print-bar{
-        position:fixed;top:0;left:0;right:0;z-index:100;
-        background:#1a1a2e;color:#fff;
-        display:flex;align-items:center;justify-content:center;gap:12px;
-        padding:10px 20px;font-family:sans-serif;font-size:13px;
-      }
-      .print-bar button{
-        padding:7px 20px;border:none;border-radius:6px;cursor:pointer;
-        font-size:13px;font-weight:600;font-family:inherit;
-      }
-      .print-bar .btn-pdf{background:#c9a84c;color:#111;}
-      .print-bar .btn-close{background:rgba(255,255,255,.15);color:#fff;}
-      body{padding-top:52px;}
+      body{background:#e0e0e0;display:flex;flex-direction:column;align-items:center;gap:20px;padding:70px 20px 40px;}
+      .page{background:#fff;box-shadow:0 2px 16px rgba(0,0,0,.2);border-radius:2px;width:210mm;max-width:95vw;padding:10mm 12mm 8mm;}
+      .page.landscape{width:297mm;}
+      .print-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:#1a1a2e;color:#fff;display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 20px;font-family:sans-serif;font-size:13px;}
+      .print-bar button{padding:7px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;}
+      .btn-pdf{background:#c9a84c;color:#111;}
+      .btn-close{background:rgba(255,255,255,.15);color:#fff;}
     }
+
+    /* Print / PDF */
+    @page{margin:10mm;size:A4 portrait;}
+    @page landscape{margin:10mm;size:A4 landscape;}
     @media print{
+      *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+      html,body{margin:0;padding:0;background:#fff;width:auto;}
       .print-bar{display:none!important;}
-      body{margin:0;padding:0;}
-      @page{margin:8mm;size:A4;}
-      @page landscape{margin:8mm;size:A4 landscape;}
+      .page{
+        width:auto;padding:0;margin:0;background:#fff;
+        page-break-after:always;break-after:page;
+        page-break-inside:avoid;break-inside:avoid;
+        overflow:hidden;
+        box-sizing:border-box;
+      }
+      .page.landscape{
+        height:190mm;
+      }
+      .page:last-child{page-break-after:avoid;break-after:avoid;}
+      .page.landscape{page:landscape;}
+      img{max-width:100%!important;height:auto!important;display:block;}
     }
   </style>
   </head><body>
@@ -1640,23 +1631,23 @@ async function printPlot(){
     <button class="btn-pdf" onclick="window.print()">印刷 / PDF保存</button>
     <button class="btn-close" onclick="window.close()">✕</button>
   </div>
-
   <div class="page landscape">
-    ${header}
-    <h2> STAGE PLOT</h2>
-    <img src="${stageUrl}" style="width:100%;display:block;border:1px solid #eee;"/>
+    <div style="flex-shrink:0;">${header}</div>
+    <div style="flex-shrink:0;font-size:12px;font-weight:800;margin-bottom:6px;padding-bottom:4px;border-bottom:2px solid #1a1a2e;color:#1a1a2e;">STAGE PLOT</div>
+    <div style="flex:1;min-height:0;overflow:hidden;">
+      <img src="${stageUrl}" style="width:100%;height:100%;max-height:150mm;object-fit:contain;display:block;border:1px solid #eee;"/>
+    </div>
   </div>
-
-  <div class="page">
+  <div class="page" style="display:flex;flex-direction:column;">
     ${header}
     ${liveInfoHTML}
-    <h2> SET LIST</h2>
-    ${slHTML}
+    <div style="font-size:12px;font-weight:800;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #1a1a2e;color:#1a1a2e;">SET LIST</div>
+    <div style="flex:1;display:flex;flex-direction:column;">${slHTML}</div>
+    <div style="margin-top:12px;padding-top:8px;border-top:1px solid #e8e8e8;text-align:right;">
+      <span style="font-size:8px;color:#ccc;letter-spacing:.18em;font-family:'Helvetica Neue',sans-serif;text-transform:uppercase;">Powered by </span><span style="font-size:8px;font-weight:800;color:#aaa;letter-spacing:.14em;font-family:'Helvetica Neue',sans-serif;text-transform:uppercase;">MIMI-LAB</span>
+    </div>
   </div>
-  <div style="margin-top:32px;padding-top:10px;border-top:1px solid #e8e8e8;text-align:right;">
-    <span style="font-size:8px;color:#ccc;letter-spacing:.18em;font-family:'Helvetica Neue',sans-serif;text-transform:uppercase;">Powered by </span><span style="font-size:8px;font-weight:800;color:#aaa;letter-spacing:.14em;font-family:'Helvetica Neue',sans-serif;text-transform:uppercase;">MIMI-LAB</span>
-  </div>
-  </body></html>`;
+</body>`;
 
   // Live info section for PDF
 
@@ -2130,49 +2121,136 @@ async function exportImages(){
     const dt=document.getElementById('evDate').value||'';
     const ev=document.getElementById('evName').value||'';
 
-    await animateBar(15,500);
-    const stageUrl=document.getElementById('stageCanvas').toDataURL('image/jpeg',0.95);
+    await animateBar(20,500);
 
-    const hdr=`<div style="margin-bottom:14px;border:1.5px solid #111;border-radius:4px;overflow:hidden;font-family:-apple-system,sans-serif;"><div style="background:#111;color:#fff;padding:5px 12px;font-size:13px;font-weight:700;">${bn||'BAND NAME'}</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;"><div style="padding:5px 10px;border-right:1px solid #ddd;"><div style="font-size:8px;color:#888;font-weight:700;margin-bottom:2px;">DATE</div><div style="font-size:11px;font-weight:600;">${dt||'—'}</div></div><div style="padding:5px 10px;border-right:1px solid #ddd;"><div style="font-size:8px;color:#888;font-weight:700;margin-bottom:2px;">VENUE</div><div style="font-size:11px;font-weight:600;">${vn||'—'}</div></div><div style="padding:5px 10px;"><div style="font-size:8px;color:#888;font-weight:700;margin-bottom:2px;">EVENT</div><div style="font-size:11px;font-weight:600;">${ev||'—'}</div></div></div></div>`;
-    const h2=(t)=>`<div style="font-size:13px;font-weight:800;margin-bottom:10px;padding-bottom:5px;border-bottom:2px solid #1a1a2e;font-family:-apple-system,sans-serif;">${t}</div>`;
-    const makeDiv=(inner)=>{const d=document.createElement('div');d.style.cssText='position:fixed;top:-9999px;left:0;width:1120px;padding:28px;background:#fff;font-family:-apple-system,sans-serif;box-sizing:border-box;';d.innerHTML=inner;document.body.appendChild(d);return d;};
-
-    // Stage image
-    await animateBar(35,400);
-    const snTxt=document.getElementById('stageNotes')?.value||'';
-    const snH=snTxt?`<div style="margin-top:10px;border:1px solid #ddd;border-radius:4px;padding:8px 12px;background:#fafafa;"><div style="font-size:8px;font-weight:700;color:#888;margin-bottom:3px;">備考</div><div style="font-size:11px;white-space:pre-wrap;">${snTxt}</div></div>`:'';
-    const d1=makeDiv(hdr+h2('STAGE PLOT')+`<img src="${stageUrl}" style="width:100%;display:block;border:1px solid #eee;"/>`+snH);
-    const c1=await html2canvas(d1,{scale:2,backgroundColor:'#fff',useCORS:true,logging:false});
-    document.body.removeChild(d1);
+    // ── Image 1: Stage plot (direct from canvas) ──
+    const sc=document.getElementById('stageCanvas');
+    // Draw to new canvas with white bg
+    const c1=document.createElement('canvas');
+    c1.width=sc.width; c1.height=sc.height;
+    const ctx1=c1.getContext('2d');
+    ctx1.fillStyle='#fff';
+    ctx1.fillRect(0,0,c1.width,c1.height);
+    ctx1.drawImage(sc,0,0);
     const img1=c1.toDataURL('image/jpeg',0.92);
-    await animateBar(60,400);
+    await animateBar(50,400);
 
-    // Setlist image
-    let sc=0,tot=0,sl='<table style="width:100%;border-collapse:collapse;font-size:10px;line-height:1.5;">';
-    sl+='<thead><tr style="background:#1a1a2e;color:#fff;"><th style="padding:7px 9px;width:28px;text-align:center;">#</th><th style="padding:7px 9px;text-align:left;">曲名</th><th style="padding:7px 9px;width:58px;text-align:center;">時間</th><th style="padding:7px 9px;width:52px;text-align:center;">BPM</th><th style="padding:7px 9px;width:28%;text-align:left;">照明メモ</th><th style="padding:7px 9px;width:28%;text-align:left;">音響メモ</th></tr></thead><tbody>';
-    rows.forEach((r,i)=>{
-      if(r.isMC){sl+=`<tr style="background:#fffbf2;"><td style="padding:6px 9px;border:1px solid #e0e0e8;text-align:center;color:#aaa;">${i+1}</td><td colspan="3" style="padding:6px 9px;border:1px solid #e0e0e8;"><span style="background:#fde68a;color:#92400e;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;">MC</span> ${r.title||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-size:9.5px;white-space:pre-wrap;">${r.light||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-size:9.5px;white-space:pre-wrap;">${r.sound||''}</td></tr>`;}
-      else{sc++;if(r.dur){const[m,s]=r.dur.split(':').map(Number);if(!isNaN(m)&&!isNaN(s))tot+=m*60+s;}sl+=`<tr style="background:${i%2?'#f8f8fb':'#fff'};"><td style="padding:6px 9px;border:1px solid #e0e0e8;text-align:center;color:#aaa;">${i+1}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-weight:700;">${r.title||''}${r.isCopy&&r.artist?`<span style="font-size:9px;color:#888;display:block;">▶ ${r.artist}</span>`:''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;text-align:center;">${r.dur||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;text-align:center;">${r.bpm||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-size:9.5px;white-space:pre-wrap;">${r.light||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-size:9.5px;white-space:pre-wrap;">${r.sound||''}</td></tr>`;}
+    // ── Image 2: Setlist as Canvas ──
+    // Build text-based canvas (no html2canvas needed)
+    const CWIDTH=1200, PAD=40, ROW=34, HEAD=28;
+    const headerH=80, h2H=44;
+    const dataRows=rows.length;
+    const totalH=PAD+headerH+h2H+(dataRows+2)*ROW+200+PAD;
+    const c2=document.createElement('canvas');
+    c2.width=CWIDTH*2; c2.height=totalH*2;
+    const ctx2=c2.getContext('2d');
+    ctx2.scale(2,2);
+
+    // White bg
+    ctx2.fillStyle='#fff';
+    ctx2.fillRect(0,0,CWIDTH,totalH);
+
+    let y=PAD;
+
+    // Header box
+    ctx2.fillStyle='#111';
+    ctx2.fillRect(PAD,y,CWIDTH-PAD*2,32);
+    ctx2.fillStyle='#fff';
+    ctx2.font='bold 14px -apple-system,sans-serif';
+    ctx2.fillText(bn||'BAND NAME',PAD+12,y+22);
+    y+=32;
+    ctx2.strokeStyle='#ddd';ctx2.lineWidth=1;
+    ctx2.strokeRect(PAD,y,CWIDTH-PAD*2,36);
+    ctx2.fillStyle='#888';ctx2.font='8px -apple-system,sans-serif';
+    const colW=(CWIDTH-PAD*2)/3;
+    ['DATE','VENUE','EVENT'].forEach((label,i)=>{
+      ctx2.fillStyle='#888';ctx2.font='bold 8px -apple-system,sans-serif';
+      ctx2.fillText(label,PAD+i*colW+10,y+13);
+      ctx2.fillStyle='#111';ctx2.font='bold 11px -apple-system,sans-serif';
+      ctx2.fillText([dt,vn,ev][i]||'—',PAD+i*colW+10,y+28);
+      if(i<2){ctx2.beginPath();ctx2.moveTo(PAD+(i+1)*colW,y);ctx2.lineTo(PAD+(i+1)*colW,y+36);ctx2.strokeStyle='#ddd';ctx2.stroke();}
     });
-    const tm=Math.floor(tot/60),ts=tot%60;
-    sl+=`<tr style="background:#1a1a2e;color:#fff;font-weight:700;"><td colspan="2" style="padding:7px 9px;">合計 ${sc}曲</td><td style="padding:7px 9px;text-align:center;">${tm}:${String(ts).padStart(2,'0')}</td><td colspan="3"></td></tr></tbody></table>`;
-    const nv=document.getElementById('slNotes')?.value||'';
-    const nH=`<div style="margin-bottom:12px;padding:8px 12px;border:1px solid #ddd;border-radius:4px;background:#fafafa;"><div style="font-size:8px;font-weight:700;color:#888;margin-bottom:3px;">備考</div><div style="font-size:11px;white-space:pre-wrap;min-height:36px;">${nv}</div></div>`;
-    const mH=`<div style="margin-top:14px;"><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:#1a1a2e;text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid #1a1a2e;">STAFF MEMO</div><div style="border:1.5px solid #ccc;border-radius:4px;min-height:90px;background:#fafafa;padding:10px;"></div></div>`;
-    const d2=makeDiv(hdr+h2('SET LIST')+nH+sl+mH);
-    await animateBar(82,500);
-    const c2=await html2canvas(d2,{scale:2,backgroundColor:'#fff',useCORS:true,logging:false});
-    document.body.removeChild(d2);
-    const img2=c2.toDataURL('image/jpeg',0.92);
-    await animateBar(100,300);
+    y+=36+16;
 
-    // Set download links in modal
-    const b=bn||'band';
+    // SET LIST h2
+    ctx2.fillStyle='#111';ctx2.font='bold 13px -apple-system,sans-serif';
+    ctx2.fillText('SET LIST',PAD,y+14);
+    ctx2.beginPath();ctx2.moveTo(PAD,y+20);ctx2.lineTo(CWIDTH-PAD,y+20);
+    ctx2.strokeStyle='#1a1a2e';ctx2.lineWidth=2;ctx2.stroke();
+    y+=30;
+
+    // 備考
+    const nv=document.getElementById('slNotes')?.value||'';
+    ctx2.strokeStyle='#ddd';ctx2.lineWidth=1;
+    ctx2.strokeRect(PAD,y,CWIDTH-PAD*2,40);
+    ctx2.fillStyle='#888';ctx2.font='bold 8px -apple-system,sans-serif';
+    ctx2.fillText('備考',PAD+10,y+13);
+    ctx2.fillStyle='#111';ctx2.font='11px -apple-system,sans-serif';
+    ctx2.fillText((nv||'').replace(/\n[\s\S]*/,''),PAD+10,y+28);
+    y+=48;
+
+    // Table header
+    const cols=[{label:'#',w:40},{label:'曲名',w:220},{label:'時間',w:70},{label:'BPM',w:60},{label:'照明メモ',w:null},{label:'音響メモ',w:null}];
+    const remainW=CWIDTH-PAD*2-40-220-70-60;
+    cols[4].w=remainW/2; cols[5].w=remainW/2;
+    ctx2.fillStyle='#1a1a2e';
+    ctx2.fillRect(PAD,y,CWIDTH-PAD*2,HEAD);
+    ctx2.fillStyle='#fff';ctx2.font='bold 10px -apple-system,sans-serif';
+    let cx=PAD;
+    cols.forEach(c=>{ctx2.fillText(c.label,cx+6,y+18);cx+=c.w;});
+    y+=HEAD;
+
+    // Table rows
+    let tot=0,scount=0;
+    rows.forEach((r,i)=>{
+      ctx2.fillStyle=r.isMC?'#fffbf2':(i%2?'#f8f8fb':'#fff');
+      ctx2.fillRect(PAD,y,CWIDTH-PAD*2,ROW);
+      ctx2.strokeStyle='#e0e0e8';ctx2.lineWidth=0.5;
+      ctx2.strokeRect(PAD,y,CWIDTH-PAD*2,ROW);
+      ctx2.fillStyle='#999';ctx2.font='10px -apple-system,sans-serif';
+      cx=PAD;
+      const vals=r.isMC
+        ?[i+1,'MC: '+(r.title||''),'','','','']
+        :[i+1,r.title||(r.isCopy&&r.artist?r.artist:''),r.dur||'',r.bpm||'',
+          (r.light||'').replace(/[\n][\s\S]*/,''),(r.sound||'').replace(/[\n][\s\S]*/,'')];
+      if(!r.isMC){scount++;if(r.dur){const[m,s]=r.dur.split(':').map(Number);if(!isNaN(m)&&!isNaN(s))tot+=m*60+s;}}
+      cols.forEach((c,ci)=>{
+        ctx2.fillStyle=ci===0?'#aaa':(r.isMC&&ci===1?'#8a6000':'#111');
+        ctx2.font=(ci===1&&!r.isMC?'bold ':'')+`10px -apple-system,sans-serif`;
+        const txt=String(vals[ci]||'');
+        ctx2.fillText(txt.length>30?txt.slice(0,28)+'…':txt,cx+6,y+ROW/2+4);
+        cx+=c.w;
+      });
+      y+=ROW;
+    });
+
+    // Total row
+    const tm=Math.floor(tot/60),ts=tot%60;
+    ctx2.fillStyle='#1a1a2e';ctx2.fillRect(PAD,y,CWIDTH-PAD*2,ROW);
+    ctx2.fillStyle='#fff';ctx2.font='bold 10px -apple-system,sans-serif';
+    ctx2.fillText(`合計 ${scount}曲`,PAD+6,y+ROW/2+4);
+    ctx2.fillText(`${tm}:${String(ts).padStart(2,'0')}`,PAD+40+220+6,y+ROW/2+4);
+    y+=ROW+20;
+
+    // STAFF MEMO
+    ctx2.fillStyle='#111';ctx2.font='bold 9px -apple-system,sans-serif';
+    ctx2.fillText('STAFF MEMO',PAD,y+10);
+    ctx2.beginPath();ctx2.moveTo(PAD,y+14);ctx2.lineTo(CWIDTH-PAD,y+14);
+    ctx2.strokeStyle='#1a1a2e';ctx2.lineWidth=2;ctx2.stroke();
+    y+=20;
+    ctx2.strokeStyle='#ccc';ctx2.lineWidth=1;
+    ctx2.strokeRect(PAD,y,CWIDTH-PAD*2,90);
+
+    const img2=c2.toDataURL('image/jpeg',0.92);
+    await animateBar(95,300);
+
+    // Show modal with download buttons
     document.getElementById('imgBtn1').href=img1;
-    document.getElementById('imgBtn1').download=b+'-stage.jpg';
+    document.getElementById('imgBtn1').download=(bn||'band')+'-stage.jpg';
     document.getElementById('imgBtn2').href=img2;
-    document.getElementById('imgBtn2').download=b+'-setlist.jpg';
+    document.getElementById('imgBtn2').download=(bn||'band')+'-setlist.jpg';
     document.getElementById('imgModal').style.display='flex';
+    await animateBar(100,200);
 
   }catch(e){
     console.error('image export error:',e);
