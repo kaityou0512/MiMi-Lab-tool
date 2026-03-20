@@ -1591,11 +1591,11 @@ async function printPlot(){
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;background:#fff;color:#111;}
     .page{
-      width:210mm;min-height:297mm;padding:10mm 12mm 8mm;
+      width:210mm;padding:10mm 12mm 8mm;
       page-break-after:always;background:#fff;
     }
     .page.landscape{
-      width:297mm;min-height:210mm;padding:10mm 12mm 8mm;
+      width:297mm;padding:10mm 12mm 8mm;
     }
     .page:last-child{page-break-after:avoid;}
     h2{font-size:12px;font-weight:800;margin-bottom:8px;padding-bottom:4px;
@@ -1604,7 +1604,7 @@ async function printPlot(){
       html,body{width:auto;}
       .page{padding:10mm 12mm 8mm;margin:0;}
       .page.landscape{
-        width:297mm;min-height:210mm;
+        width:297mm;
         padding:10mm 12mm 8mm;
       }
       @page landscape { size: A4 landscape; }
@@ -1629,10 +1629,9 @@ async function printPlot(){
     }
     @media print{
       .print-bar{display:none!important;}
-      .page{padding:8mm 10mm 6mm!important;}
       body{margin:0;padding:0;}
-      @page{margin:0;size:A4;}
-      @page landscape{margin:0;size:A4 landscape;}
+      @page{margin:8mm;size:A4;}
+      @page landscape{margin:8mm;size:A4 landscape;}
     }
   </style>
   </head><body>
@@ -2132,63 +2131,49 @@ async function exportImages(){
     const ev=document.getElementById('evName').value||'';
 
     await animateBar(15,500);
-
     const stageUrl=document.getElementById('stageCanvas').toDataURL('image/jpeg',0.95);
 
-    // Header block (same style as PDF)
-    const hdr=`<div style="margin-bottom:14px;border:1.5px solid #111;border-radius:4px;overflow:hidden;font-family:-apple-system,sans-serif;">
-      <div style="background:#111;color:#fff;padding:5px 12px;font-size:13px;font-weight:700;">${bn||'BAND NAME'}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;">
-        <div style="padding:5px 10px;border-right:1px solid #ddd;"><div style="font-size:8px;color:#888;font-weight:700;margin-bottom:2px;">DATE</div><div style="font-size:11px;font-weight:600;">${dt||'—'}</div></div>
-        <div style="padding:5px 10px;border-right:1px solid #ddd;"><div style="font-size:8px;color:#888;font-weight:700;margin-bottom:2px;">VENUE</div><div style="font-size:11px;font-weight:600;">${vn||'—'}</div></div>
-        <div style="padding:5px 10px;"><div style="font-size:8px;color:#888;font-weight:700;margin-bottom:2px;">EVENT</div><div style="font-size:11px;font-weight:600;">${ev||'—'}</div></div>
-      </div>
-    </div>`;
-
+    const hdr=`<div style="margin-bottom:14px;border:1.5px solid #111;border-radius:4px;overflow:hidden;font-family:-apple-system,sans-serif;"><div style="background:#111;color:#fff;padding:5px 12px;font-size:13px;font-weight:700;">${bn||'BAND NAME'}</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;"><div style="padding:5px 10px;border-right:1px solid #ddd;"><div style="font-size:8px;color:#888;font-weight:700;margin-bottom:2px;">DATE</div><div style="font-size:11px;font-weight:600;">${dt||'—'}</div></div><div style="padding:5px 10px;border-right:1px solid #ddd;"><div style="font-size:8px;color:#888;font-weight:700;margin-bottom:2px;">VENUE</div><div style="font-size:11px;font-weight:600;">${vn||'—'}</div></div><div style="padding:5px 10px;"><div style="font-size:8px;color:#888;font-weight:700;margin-bottom:2px;">EVENT</div><div style="font-size:11px;font-weight:600;">${ev||'—'}</div></div></div></div>`;
     const h2=(t)=>`<div style="font-size:13px;font-weight:800;margin-bottom:10px;padding-bottom:5px;border-bottom:2px solid #1a1a2e;font-family:-apple-system,sans-serif;">${t}</div>`;
-    const wrapDiv=(inner)=>{const d=document.createElement('div');d.style.cssText='position:fixed;top:-9999px;left:0;width:1120px;padding:28px;background:#fff;font-family:-apple-system,sans-serif;box-sizing:border-box;';d.innerHTML=inner;document.body.appendChild(d);return d;};
+    const makeDiv=(inner)=>{const d=document.createElement('div');d.style.cssText='position:fixed;top:-9999px;left:0;width:1120px;padding:28px;background:#fff;font-family:-apple-system,sans-serif;box-sizing:border-box;';d.innerHTML=inner;document.body.appendChild(d);return d;};
 
-    // Page 1: Stage
-    await animateBar(40,400);
-    const stageNotesTxt=document.getElementById('stageNotes')?.value||'';
-    const stageNotesH=stageNotesTxt?`<div style="margin-top:10px;border:1px solid #ddd;border-radius:4px;padding:8px 12px;background:#fafafa;"><div style="font-size:8px;font-weight:700;color:#888;margin-bottom:3px;">備考</div><div style="font-size:11px;white-space:pre-wrap;">${stageNotesTxt}</div></div>`:'';
-    const d1=wrapDiv(hdr+h2('STAGE PLOT')+`<img src="${stageUrl}" style="width:100%;display:block;border:1px solid #eee;"/>`+stageNotesH);
+    // Stage image
+    await animateBar(35,400);
+    const snTxt=document.getElementById('stageNotes')?.value||'';
+    const snH=snTxt?`<div style="margin-top:10px;border:1px solid #ddd;border-radius:4px;padding:8px 12px;background:#fafafa;"><div style="font-size:8px;font-weight:700;color:#888;margin-bottom:3px;">備考</div><div style="font-size:11px;white-space:pre-wrap;">${snTxt}</div></div>`:'';
+    const d1=makeDiv(hdr+h2('STAGE PLOT')+`<img src="${stageUrl}" style="width:100%;display:block;border:1px solid #eee;"/>`+snH);
     const c1=await html2canvas(d1,{scale:2,backgroundColor:'#fff',useCORS:true,logging:false});
     document.body.removeChild(d1);
     const img1=c1.toDataURL('image/jpeg',0.92);
+    await animateBar(60,400);
 
-    // Page 2: Setlist
-    await animateBar(65,500);
-    let sc=0,tot=0;
-    let sl='<table style="width:100%;border-collapse:collapse;font-size:10px;line-height:1.5;">';
+    // Setlist image
+    let sc=0,tot=0,sl='<table style="width:100%;border-collapse:collapse;font-size:10px;line-height:1.5;">';
     sl+='<thead><tr style="background:#1a1a2e;color:#fff;"><th style="padding:7px 9px;width:28px;text-align:center;">#</th><th style="padding:7px 9px;text-align:left;">曲名</th><th style="padding:7px 9px;width:58px;text-align:center;">時間</th><th style="padding:7px 9px;width:52px;text-align:center;">BPM</th><th style="padding:7px 9px;width:28%;text-align:left;">照明メモ</th><th style="padding:7px 9px;width:28%;text-align:left;">音響メモ</th></tr></thead><tbody>';
     rows.forEach((r,i)=>{
-      if(r.isMC){
-        sl+=`<tr style="background:#fffbf2;"><td style="padding:6px 9px;border:1px solid #e0e0e8;text-align:center;color:#aaa;">${i+1}</td><td colspan="3" style="padding:6px 9px;border:1px solid #e0e0e8;"><span style="background:#fde68a;color:#92400e;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;">MC</span> ${r.title||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-size:9.5px;white-space:pre-wrap;">${r.light||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-size:9.5px;white-space:pre-wrap;">${r.sound||''}</td></tr>`;
-      } else {
-        sc++;if(r.dur){const[m,s]=r.dur.split(':').map(Number);if(!isNaN(m)&&!isNaN(s))tot+=m*60+s;}
-        sl+=`<tr style="background:${i%2?'#f8f8fb':'#fff'};"><td style="padding:6px 9px;border:1px solid #e0e0e8;text-align:center;color:#aaa;">${i+1}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-weight:700;">${r.title||''}${r.isCopy&&r.artist?`<div style="font-size:9px;color:#888;">▶ ${r.artist}</div>`:''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;text-align:center;">${r.dur||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;text-align:center;">${r.bpm||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-size:9.5px;white-space:pre-wrap;">${r.light||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-size:9.5px;white-space:pre-wrap;">${r.sound||''}</td></tr>`;
-      }
+      if(r.isMC){sl+=`<tr style="background:#fffbf2;"><td style="padding:6px 9px;border:1px solid #e0e0e8;text-align:center;color:#aaa;">${i+1}</td><td colspan="3" style="padding:6px 9px;border:1px solid #e0e0e8;"><span style="background:#fde68a;color:#92400e;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;">MC</span> ${r.title||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-size:9.5px;white-space:pre-wrap;">${r.light||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-size:9.5px;white-space:pre-wrap;">${r.sound||''}</td></tr>`;}
+      else{sc++;if(r.dur){const[m,s]=r.dur.split(':').map(Number);if(!isNaN(m)&&!isNaN(s))tot+=m*60+s;}sl+=`<tr style="background:${i%2?'#f8f8fb':'#fff'};"><td style="padding:6px 9px;border:1px solid #e0e0e8;text-align:center;color:#aaa;">${i+1}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-weight:700;">${r.title||''}${r.isCopy&&r.artist?`<span style="font-size:9px;color:#888;display:block;">▶ ${r.artist}</span>`:''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;text-align:center;">${r.dur||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;text-align:center;">${r.bpm||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-size:9.5px;white-space:pre-wrap;">${r.light||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-size:9.5px;white-space:pre-wrap;">${r.sound||''}</td></tr>`;}
     });
     const tm=Math.floor(tot/60),ts=tot%60;
     sl+=`<tr style="background:#1a1a2e;color:#fff;font-weight:700;"><td colspan="2" style="padding:7px 9px;">合計 ${sc}曲</td><td style="padding:7px 9px;text-align:center;">${tm}:${String(ts).padStart(2,'0')}</td><td colspan="3"></td></tr></tbody></table>`;
-    const notesV=document.getElementById('slNotes')?.value||'';
-    const notesH=`<div style="margin-bottom:12px;padding:8px 12px;border:1px solid #ddd;border-radius:4px;background:#fafafa;"><div style="font-size:8px;font-weight:700;color:#888;margin-bottom:3px;">備考</div><div style="font-size:11px;white-space:pre-wrap;min-height:40px;">${notesV}</div></div>`;
-    const memoH=`<div style="margin-top:16px;"><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:#1a1a2e;text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid #1a1a2e;">STAFF MEMO</div><div style="border:1.5px solid #ccc;border-radius:4px;min-height:100px;background:#fafafa;padding:12px;"></div></div>`;
-    const d2=wrapDiv(hdr+h2('SET LIST')+notesH+sl+memoH);
-    await animateBar(82,400);
+    const nv=document.getElementById('slNotes')?.value||'';
+    const nH=`<div style="margin-bottom:12px;padding:8px 12px;border:1px solid #ddd;border-radius:4px;background:#fafafa;"><div style="font-size:8px;font-weight:700;color:#888;margin-bottom:3px;">備考</div><div style="font-size:11px;white-space:pre-wrap;min-height:36px;">${nv}</div></div>`;
+    const mH=`<div style="margin-top:14px;"><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:#1a1a2e;text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid #1a1a2e;">STAFF MEMO</div><div style="border:1.5px solid #ccc;border-radius:4px;min-height:90px;background:#fafafa;padding:10px;"></div></div>`;
+    const d2=makeDiv(hdr+h2('SET LIST')+nH+sl+mH);
+    await animateBar(82,500);
     const c2=await html2canvas(d2,{scale:2,backgroundColor:'#fff',useCORS:true,logging:false});
     document.body.removeChild(d2);
     const img2=c2.toDataURL('image/jpeg',0.92);
-    await animateBar(95,300);
+    await animateBar(100,300);
 
-    const dl=(src,name)=>{const a=document.createElement('a');a.href=src;a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);};
-    dl(img1,(bn||'band')+'-stage.jpg');
-    await new Promise(r=>setTimeout(r,600));
-    dl(img2,(bn||'band')+'-setlist.jpg');
-    await animateBar(100,200);
-    await new Promise(r=>setTimeout(r,400));
-    showThankModal();
+    // Set download links in modal
+    const b=bn||'band';
+    document.getElementById('imgBtn1').href=img1;
+    document.getElementById('imgBtn1').download=b+'-stage.jpg';
+    document.getElementById('imgBtn2').href=img2;
+    document.getElementById('imgBtn2').download=b+'-setlist.jpg';
+    document.getElementById('imgModal').style.display='flex';
+
   }catch(e){
     console.error('image export error:',e);
     alert('画像生成に失敗しました: '+e.message);
@@ -2197,7 +2182,6 @@ async function exportImages(){
     btn.textContent='画像で保存';btn.disabled=false;
   }
 }
-
 // ── SHARE ──
 function showThankModal(){
   document.getElementById('thankModal').style.display='flex';
@@ -2559,6 +2543,23 @@ renderSetlist();
 })();
 </script>
 
+<!-- ── IMAGE DOWNLOAD MODAL ── -->
+<div id="imgModal" style="display:none;position:fixed;inset:0;z-index:40000;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px;max-width:360px;width:100%;box-shadow:0 8px 48px rgba(0,0,0,.5);text-align:center;position:relative;">
+    <button onclick="document.getElementById('imgModal').style.display='none'" style="position:absolute;top:14px;right:16px;border:none;background:none;color:var(--text3);font-size:18px;cursor:pointer;">✕</button>
+    <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:6px;">画像の保存</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:22px;line-height:1.7;">それぞれのボタンをタップして保存してください</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+      <a id="imgBtn1" download="stage.jpg" style="display:block;padding:13px;border-radius:10px;background:linear-gradient(135deg,#b8933e,#c9a84c);color:#1a1205;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;">
+        ステージ図をダウンロード
+      </a>
+      <a id="imgBtn2" download="setlist.jpg" style="display:block;padding:13px;border-radius:10px;background:linear-gradient(135deg,#b8933e,#c9a84c);color:#1a1205;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;">
+        セットリストをダウンロード
+      </a>
+    </div>
+    <button onclick="document.getElementById('imgModal').style.display='none'" style="font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;text-decoration:underline;">閉じる</button>
+  </div>
+</div>
 <!-- ── SPLASH SCREEN ── -->
 <div id="splash" style="position:fixed;inset:0;z-index:99999;background:#1e1e2e;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
   <div id="splashLogo" style="opacity:0;transform:translateY(30px) scale(0.92);transition:none;">
