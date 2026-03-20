@@ -1433,7 +1433,6 @@ async function animateBar(targetPct, durationMs){
 
 async function printPlot(){
   // Open window immediately on user gesture (before any await) for iOS compatibility
-  const printWin=window.open('','_blank') || window.open('','_self');
   showPdfLoader();
   try{
   await animateBar(15, 500);
@@ -1672,14 +1671,10 @@ async function printPlot(){
   await animateBar(100, 400);
   await new Promise(r=>setTimeout(r,500));
 
-  if(printWin){
-    printWin.document.write(html);
-    printWin.document.close();
-  } else {
-    const url=URL.createObjectURL(blob);
-    window.location.href=url;
-    setTimeout(()=>URL.revokeObjectURL(url),60000);
-  }
+  const _pdfUrl=URL.createObjectURL(blob);
+  const _pdfWin=window.open(_pdfUrl,'_blank');
+  if(!_pdfWin) window.location.href=_pdfUrl;
+  setTimeout(()=>URL.revokeObjectURL(_pdfUrl),60000);
   // Show thank you modal after a short delay
   setTimeout(()=>showThankModal(), 800);
   }catch(e){console.error('PDF error:',e);alert('PDF生成に失敗しました: '+e.message);}
@@ -2132,44 +2127,70 @@ async function exportImages(){
   showPdfLoader();
   try{
     const bn=document.getElementById('bandName').value||'band';
+    const vn=document.getElementById('venue').value||'';
+    const dt=document.getElementById('evDate').value||'';
+    const ev=document.getElementById('evName').value||'';
 
-    await animateBar(20,400);
+    await animateBar(15,500);
 
-    // 1. Stage plot image from canvas
-    const stageCanvas=document.getElementById('stageCanvas');
-    const stageImg=stageCanvas.toDataURL('image/jpeg',0.92);
-    await animateBar(50,500);
+    const stageUrl=document.getElementById('stageCanvas').toDataURL('image/jpeg',0.95);
 
-    // 2. Setlist image via html2canvas
-    const slWrap=document.querySelector('.sl-wrap');
-    await animateBar(70,300);
-    const slCanvas=await html2canvas(slWrap,{
-      backgroundColor:'#28283c',  // dark bg for JPEG
-      scale:2,
-      useCORS:true,
-      logging:false
+    // Header block (same style as PDF)
+    const hdr=`<div style="margin-bottom:14px;border:1.5px solid #111;border-radius:4px;overflow:hidden;font-family:-apple-system,sans-serif;">
+      <div style="background:#111;color:#fff;padding:5px 12px;font-size:13px;font-weight:700;">${bn||'BAND NAME'}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;">
+        <div style="padding:5px 10px;border-right:1px solid #ddd;"><div style="font-size:8px;color:#888;font-weight:700;margin-bottom:2px;">DATE</div><div style="font-size:11px;font-weight:600;">${dt||'—'}</div></div>
+        <div style="padding:5px 10px;border-right:1px solid #ddd;"><div style="font-size:8px;color:#888;font-weight:700;margin-bottom:2px;">VENUE</div><div style="font-size:11px;font-weight:600;">${vn||'—'}</div></div>
+        <div style="padding:5px 10px;"><div style="font-size:8px;color:#888;font-weight:700;margin-bottom:2px;">EVENT</div><div style="font-size:11px;font-weight:600;">${ev||'—'}</div></div>
+      </div>
+    </div>`;
+
+    const h2=(t)=>`<div style="font-size:13px;font-weight:800;margin-bottom:10px;padding-bottom:5px;border-bottom:2px solid #1a1a2e;font-family:-apple-system,sans-serif;">${t}</div>`;
+    const wrapDiv=(inner)=>{const d=document.createElement('div');d.style.cssText='position:fixed;top:-9999px;left:0;width:1120px;padding:28px;background:#fff;font-family:-apple-system,sans-serif;box-sizing:border-box;';d.innerHTML=inner;document.body.appendChild(d);return d;};
+
+    // Page 1: Stage
+    await animateBar(40,400);
+    const stageNotesTxt=document.getElementById('stageNotes')?.value||'';
+    const stageNotesH=stageNotesTxt?`<div style="margin-top:10px;border:1px solid #ddd;border-radius:4px;padding:8px 12px;background:#fafafa;"><div style="font-size:8px;font-weight:700;color:#888;margin-bottom:3px;">備考</div><div style="font-size:11px;white-space:pre-wrap;">${stageNotesTxt}</div></div>`:'';
+    const d1=wrapDiv(hdr+h2('STAGE PLOT')+`<img src="${stageUrl}" style="width:100%;display:block;border:1px solid #eee;"/>`+stageNotesH);
+    const c1=await html2canvas(d1,{scale:2,backgroundColor:'#fff',useCORS:true,logging:false});
+    document.body.removeChild(d1);
+    const img1=c1.toDataURL('image/jpeg',0.92);
+
+    // Page 2: Setlist
+    await animateBar(65,500);
+    let sc=0,tot=0;
+    let sl='<table style="width:100%;border-collapse:collapse;font-size:10px;line-height:1.5;">';
+    sl+='<thead><tr style="background:#1a1a2e;color:#fff;"><th style="padding:7px 9px;width:28px;text-align:center;">#</th><th style="padding:7px 9px;text-align:left;">曲名</th><th style="padding:7px 9px;width:58px;text-align:center;">時間</th><th style="padding:7px 9px;width:52px;text-align:center;">BPM</th><th style="padding:7px 9px;width:28%;text-align:left;">照明メモ</th><th style="padding:7px 9px;width:28%;text-align:left;">音響メモ</th></tr></thead><tbody>';
+    rows.forEach((r,i)=>{
+      if(r.isMC){
+        sl+=`<tr style="background:#fffbf2;"><td style="padding:6px 9px;border:1px solid #e0e0e8;text-align:center;color:#aaa;">${i+1}</td><td colspan="3" style="padding:6px 9px;border:1px solid #e0e0e8;"><span style="background:#fde68a;color:#92400e;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;">MC</span> ${r.title||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-size:9.5px;white-space:pre-wrap;">${r.light||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-size:9.5px;white-space:pre-wrap;">${r.sound||''}</td></tr>`;
+      } else {
+        sc++;if(r.dur){const[m,s]=r.dur.split(':').map(Number);if(!isNaN(m)&&!isNaN(s))tot+=m*60+s;}
+        sl+=`<tr style="background:${i%2?'#f8f8fb':'#fff'};"><td style="padding:6px 9px;border:1px solid #e0e0e8;text-align:center;color:#aaa;">${i+1}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-weight:700;">${r.title||''}${r.isCopy&&r.artist?`<div style="font-size:9px;color:#888;">▶ ${r.artist}</div>`:''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;text-align:center;">${r.dur||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;text-align:center;">${r.bpm||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-size:9.5px;white-space:pre-wrap;">${r.light||''}</td><td style="padding:6px 9px;border:1px solid #e0e0e8;font-size:9.5px;white-space:pre-wrap;">${r.sound||''}</td></tr>`;
+      }
     });
-    const slImg=slCanvas.toDataURL('image/jpeg',0.92);
-    await animateBar(90,400);
+    const tm=Math.floor(tot/60),ts=tot%60;
+    sl+=`<tr style="background:#1a1a2e;color:#fff;font-weight:700;"><td colspan="2" style="padding:7px 9px;">合計 ${sc}曲</td><td style="padding:7px 9px;text-align:center;">${tm}:${String(ts).padStart(2,'0')}</td><td colspan="3"></td></tr></tbody></table>`;
+    const notesV=document.getElementById('slNotes')?.value||'';
+    const notesH=`<div style="margin-bottom:12px;padding:8px 12px;border:1px solid #ddd;border-radius:4px;background:#fafafa;"><div style="font-size:8px;font-weight:700;color:#888;margin-bottom:3px;">備考</div><div style="font-size:11px;white-space:pre-wrap;min-height:40px;">${notesV}</div></div>`;
+    const memoH=`<div style="margin-top:16px;"><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:#1a1a2e;text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid #1a1a2e;">STAFF MEMO</div><div style="border:1.5px solid #ccc;border-radius:4px;min-height:100px;background:#fafafa;padding:12px;"></div></div>`;
+    const d2=wrapDiv(hdr+h2('SET LIST')+notesH+sl+memoH);
+    await animateBar(82,400);
+    const c2=await html2canvas(d2,{scale:2,backgroundColor:'#fff',useCORS:true,logging:false});
+    document.body.removeChild(d2);
+    const img2=c2.toDataURL('image/jpeg',0.92);
+    await animateBar(95,300);
 
-    // Download stage image
-    const a1=document.createElement('a');
-    a1.href=stageImg;
-    a1.download=bn+'-stage.jpg';
-    a1.click();
-
-    // Small delay then download setlist
-    await new Promise(r=>setTimeout(r,500));
-    const a2=document.createElement('a');
-    a2.href=slImg;
-    a2.download=bn+'-setlist.jpg';
-    a2.click();
-
+    const dl=(src,name)=>{const a=document.createElement('a');a.href=src;a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);};
+    dl(img1,(bn||'band')+'-stage.jpg');
+    await new Promise(r=>setTimeout(r,600));
+    dl(img2,(bn||'band')+'-setlist.jpg');
     await animateBar(100,200);
-    await new Promise(r=>setTimeout(r,300));
+    await new Promise(r=>setTimeout(r,400));
     showThankModal();
   }catch(e){
-    console.error(e);
+    console.error('image export error:',e);
     alert('画像生成に失敗しました: '+e.message);
   }finally{
     hidePdfLoader();
